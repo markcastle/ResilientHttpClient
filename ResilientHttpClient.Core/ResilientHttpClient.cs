@@ -90,10 +90,26 @@ namespace ResilientHttpClient.Core
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            // Check if circuit is open
-            if (IsCircuitOpen())
+            // Get per-request policy if available
+            var requestPolicy = request.GetPolicy();
+            
+            // Check if circuit is open (unless bypassed by request policy)
+            if (!requestPolicy?.BypassCircuitBreaker ?? true)
             {
-                throw new HttpRequestException("Circuit is open due to previous failures");
+                if (IsCircuitOpen())
+                {
+                    throw new HttpRequestException("Circuit is open due to previous failures");
+                }
+            }
+
+            // Determine retry settings based on request policy or defaults
+            int maxRetries = requestPolicy?.MaxRetries ?? _maxRetries;
+            TimeSpan retryDelay = requestPolicy?.RetryDelay ?? _retryDelay;
+            
+            // If retries are disabled by request policy, set maxRetries to 0
+            if (requestPolicy?.DisableRetries ?? false)
+            {
+                maxRetries = 0;
             }
 
             // Implement retry logic
@@ -117,10 +133,10 @@ namespace ResilientHttpClient.Core
                     // Handle transient errors (5xx and certain 4xx)
                     if (IsTransientError(response.StatusCode))
                     {
-                        if (retryCount < _maxRetries)
+                        if (retryCount < maxRetries)
                         {
                             retryCount++;
-                            await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(false);
+                            await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                             continue;
                         }
                         
@@ -133,10 +149,10 @@ namespace ResilientHttpClient.Core
                 catch (HttpRequestException)
                 {
                     // Network errors are considered transient
-                    if (retryCount < _maxRetries)
+                    if (retryCount < maxRetries)
                     {
                         retryCount++;
-                        await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(false);
+                        await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                         continue;
                     }
                     
@@ -147,10 +163,10 @@ namespace ResilientHttpClient.Core
                 catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
                 {
                     // Timeout, not user cancellation
-                    if (retryCount < _maxRetries)
+                    if (retryCount < maxRetries)
                     {
                         retryCount++;
-                        await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(false);
+                        await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                         continue;
                     }
                     
@@ -173,10 +189,26 @@ namespace ResilientHttpClient.Core
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            // Check if circuit is open
-            if (IsCircuitOpen())
+            // Get per-request policy if available
+            var requestPolicy = request.GetPolicy();
+            
+            // Check if circuit is open (unless bypassed by request policy)
+            if (!requestPolicy?.BypassCircuitBreaker ?? true)
             {
-                throw new HttpRequestException("Circuit is open due to previous failures");
+                if (IsCircuitOpen())
+                {
+                    throw new HttpRequestException("Circuit is open due to previous failures");
+                }
+            }
+
+            // Determine retry settings based on request policy or defaults
+            int maxRetries = requestPolicy?.MaxRetries ?? _maxRetries;
+            TimeSpan retryDelay = requestPolicy?.RetryDelay ?? _retryDelay;
+            
+            // If retries are disabled by request policy, set maxRetries to 0
+            if (requestPolicy?.DisableRetries ?? false)
+            {
+                maxRetries = 0;
             }
 
             // Implement retry logic
@@ -200,10 +232,10 @@ namespace ResilientHttpClient.Core
                     // Handle transient errors (5xx and certain 4xx)
                     if (IsTransientError(response.StatusCode))
                     {
-                        if (retryCount < _maxRetries)
+                        if (retryCount < maxRetries)
                         {
                             retryCount++;
-                            await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(false);
+                            await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                             continue;
                         }
                         
@@ -216,10 +248,10 @@ namespace ResilientHttpClient.Core
                 catch (HttpRequestException)
                 {
                     // Network errors are considered transient
-                    if (retryCount < _maxRetries)
+                    if (retryCount < maxRetries)
                     {
                         retryCount++;
-                        await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(false);
+                        await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                         continue;
                     }
                     
@@ -230,10 +262,10 @@ namespace ResilientHttpClient.Core
                 catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
                 {
                     // Timeout, not user cancellation
-                    if (retryCount < _maxRetries)
+                    if (retryCount < maxRetries)
                     {
                         retryCount++;
-                        await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(false);
+                        await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                         continue;
                     }
                     

@@ -249,6 +249,7 @@ namespace ResilientHttpClient.Tests
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req => 
                     req.Method == HttpMethod.Get && 
+                    req.RequestUri != null && 
                     req.RequestUri.ToString() == "https://example.com/api/test"),
                 ItExpr.IsAny<CancellationToken>());
         }

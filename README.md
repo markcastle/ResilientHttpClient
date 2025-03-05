@@ -11,6 +11,7 @@ A drop-in replacement for HttpClient that adds common resiliency patterns such a
 - **No External Dependencies**: Uses only native .NET Standard 2.1 features, making it compatible with Unity.
 - **Well-Tested**: Comprehensive unit tests ensure reliability and correct behavior.
 - **Complete API Coverage**: Supports all HttpClient methods including GetStringAsync for direct string responses.
+- **Per-Request Policies**: Customize resilience behavior for individual requests using a fluent interface.
 
 ## Installation
 
@@ -96,6 +97,57 @@ var content = await client.GetStringAsync("https://api.example.com/data");
 // With cancellation token
 var cts = new CancellationTokenSource();
 var content = await client.GetStringAsync("https://api.example.com/data", cts.Token);
+```
+
+### Per-Request Resilience Policies
+
+You can customize resilience behavior for individual requests using the fluent interface:
+
+```csharp
+// Create a request with custom resilience policy
+var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data")
+    .WithPolicy(policy => policy
+        .WithMaxRetries(10)
+        .WithRetryDelay(TimeSpan.FromMilliseconds(200)));
+
+// Send the request
+var response = await client.SendAsync(request);
+```
+
+#### Bypassing the Circuit Breaker
+
+For critical requests that should be attempted even when the circuit is open:
+
+```csharp
+var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/critical-data")
+    .WithPolicy(policy => policy.BypassCircuitBreaker());
+
+var response = await client.SendAsync(request);
+```
+
+#### Disabling Retries
+
+For non-critical requests where immediate feedback is more important than success:
+
+```csharp
+var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/non-critical-data")
+    .WithPolicy(policy => policy.DisableRetries());
+
+var response = await client.SendAsync(request);
+```
+
+#### Combining Multiple Policy Options
+
+You can combine multiple policy options for fine-grained control:
+
+```csharp
+var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data")
+    .WithPolicy(policy => policy
+        .WithMaxRetries(2)
+        .WithRetryDelay(TimeSpan.FromSeconds(5))
+        .BypassCircuitBreaker());
+
+var response = await client.SendAsync(request);
 ```
 
 ### Manual Creation
