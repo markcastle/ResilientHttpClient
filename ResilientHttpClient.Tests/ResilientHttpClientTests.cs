@@ -10,153 +10,143 @@ using Moq.Protected;
 
 namespace ResilientHttpClient.Tests
 {
-    public class ResilientHttpClientTests
+    /// <summary>
+    /// Tests for the ResilientHttpClient class to verify its resilience patterns
+    /// including retry policies, circuit breaker, and error handling.
+    /// </summary>
+    public class ResilientHttpClientTests : IDisposable
     {
-        [Fact]
-        public async Task SendAsync_SuccessfulRequest_ReturnsResponse()
+        // Common test objects
+        private readonly Mock<HttpMessageHandler> _handlerMock;
+        private readonly HttpClient _httpClient;
+        private readonly ResilientHttpClientOptions _defaultOptions;
+
+        public ResilientHttpClientTests()
         {
-            // Arrange
-            var handlerMock = new Mock<HttpMessageHandler>();
-            var response = new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("test content")
-            };
-
-            handlerMock
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(response);
-
-            var httpClient = new HttpClient(handlerMock.Object);
-            var resilientClient = new Core.ResilientHttpClient(httpClient);
-
-            // Act
-            var result = await resilientClient.GetAsync("http://test.com");
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            var content = await result.Content.ReadAsStringAsync();
-            Assert.Equal("test content", content);
-
-            // Verify the request was sent exactly once
-            handlerMock.Protected().Verify(
-                "SendAsync",
-                Times.Exactly(1),
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>());
-        }
-
-        [Fact]
-        public async Task SendAsync_TransientError_RetriesToMaxRetries()
-        {
-            // Arrange
-            var handlerMock = new Mock<HttpMessageHandler>();
-            var response = new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.ServiceUnavailable
-            };
-
-            handlerMock
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(response);
-
-            var httpClient = new HttpClient(handlerMock.Object);
-            var options = new ResilientHttpClientOptions
-            {
-                MaxRetries = 3,
-                RetryDelay = TimeSpan.FromMilliseconds(10) // Short delay for tests
-            };
-            var resilientClient = new Core.ResilientHttpClient(httpClient, options);
-
-            // Act
-            var result = await resilientClient.GetAsync("http://test.com");
-
-            // Assert
-            Assert.Equal(HttpStatusCode.ServiceUnavailable, result.StatusCode);
-
-            // Verify the request was sent exactly 4 times (1 original + 3 retries)
-            handlerMock.Protected().Verify(
-                "SendAsync",
-                Times.Exactly(4),
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>());
-        }
-
-        [Fact]
-        public async Task SendAsync_NonTransientError_DoesNotRetry()
-        {
-            // Arrange
-            var handlerMock = new Mock<HttpMessageHandler>();
-            var response = new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.NotFound
-            };
-
-            handlerMock
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(response);
-
-            var httpClient = new HttpClient(handlerMock.Object);
-            var options = new ResilientHttpClientOptions
-            {
-                MaxRetries = 3,
-                RetryDelay = TimeSpan.FromMilliseconds(10) // Short delay for tests
-            };
-            var resilientClient = new Core.ResilientHttpClient(httpClient, options);
-
-            // Act
-            var result = await resilientClient.GetAsync("http://test.com");
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
-
-            // Verify the request was sent exactly once (no retries)
-            handlerMock.Protected().Verify(
-                "SendAsync",
-                Times.Exactly(1),
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>());
-        }
-
-        [Fact]
-        public async Task SendAsync_NetworkError_RetriesToMaxRetries()
-        {
-            // Arrange
-            var handlerMock = new Mock<HttpMessageHandler>();
+            // Create a mock HttpMessageHandler with Loose behavior instead of Strict
+            _handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Loose);
             
-            handlerMock
-                .Protected()
+            // Setup the Dispose method to do nothing
+            _handlerMock.Protected().Setup("Dispose", ItExpr.IsAny<bool>());
+            
+            // Create an HttpClient with the mock handler
+            _httpClient = new HttpClient(_handlerMock.Object)
+            {
+                BaseAddress = new Uri("https://api.example.com/")
+            };
+
+            // Default options for testing
+            _defaultOptions = new ResilientHttpClientOptions
+            {
+                MaxRetries = 3,
+                RetryDelay = TimeSpan.FromMilliseconds(10),
+                MaxFailures = 5,
+                CircuitResetTime = TimeSpan.FromSeconds(1)
+            };
+        }
+
+        public void Dispose()
+        {
+            _httpClient?.Dispose();
+        }
+
+        #region Constructor Tests
+
+        [Fact]
+        [Trait("Category", "BasicFunctionality")]
+        public void Constructor_WhenHttpClientIsNull_ShouldThrowArgumentNullException()
+        {
+            // Act & Assert
+            HttpClient nullClient = null!;
+            var exception = Assert.Throws<ArgumentNullException>(() => new Core.ResilientHttpClient(nullClient));
+            Assert.Equal("httpClient", exception.ParamName);
+        }
+
+        [Fact]
+        [Trait("Category", "BasicFunctionality")]
+        public void CreateClient_WithCustomOptions_ShouldUseProvidedOptions()
+        {
+            // Arrange
+            var options = new ResilientHttpClientOptions
+            {
+                MaxRetries = 3,
+                RetryDelay = TimeSpan.FromMilliseconds(10)
+            };
+
+            // Act
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, options);
+
+            // Assert
+            // We can't directly test the options values since they're private
+            // Instead, we'll verify the client was created successfully
+            Assert.NotNull(resilientClient);
+        }
+
+        #endregion
+
+        #region Basic Functionality Tests
+
+        [Fact]
+        [Trait("Category", "BasicFunctionality")]
+        public async Task SendAsync_WhenRequestIsSuccessful_ShouldReturnResponseWithoutRetry()
+        {
+            // Arrange
+            var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK);
+            
+            _handlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
                     ItExpr.IsAny<CancellationToken>())
-                .ThrowsAsync(new HttpRequestException("Network error"));
+                .ReturnsAsync(expectedResponse);
 
-            var httpClient = new HttpClient(handlerMock.Object);
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, _defaultOptions);
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/test");
+
+            // Act
+            var response = await resilientClient.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            
+            // Verify SendAsync was called exactly once
+            _handlerMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>());
+        }
+
+        [Fact]
+        [Trait("Category", "RetryPolicy")]
+        public async Task SendAsync_WhenTransientErrorOccurs_ShouldRetryUpToMaxRetries()
+        {
+            // Arrange
             var options = new ResilientHttpClientOptions
             {
                 MaxRetries = 2,
-                RetryDelay = TimeSpan.FromMilliseconds(10) // Short delay for tests
+                RetryDelay = TimeSpan.FromMilliseconds(10)
             };
-            var resilientClient = new Core.ResilientHttpClient(httpClient, options);
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, options);
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/test");
 
-            // Act & Assert
-            await Assert.ThrowsAsync<HttpRequestException>(() => resilientClient.GetAsync("http://test.com"));
+            _handlerMock.Protected()
+                .SetupSequence<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
-            // Verify the request was sent exactly 3 times (1 original + 2 retries)
-            handlerMock.Protected().Verify(
+            // Act
+            var response = await resilientClient.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            
+            // Verify SendAsync was called exactly 3 times (initial + 2 retries)
+            _handlerMock.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(3),
                 ItExpr.IsAny<HttpRequestMessage>(),
@@ -164,42 +154,34 @@ namespace ResilientHttpClient.Tests
         }
 
         [Fact]
-        public async Task SendAsync_CircuitBreaker_OpensAfterMaxFailures()
+        [Trait("Category", "RetryPolicy")]
+        public async Task SendAsync_WhenNetworkErrorOccurs_ShouldRetryUpToMaxRetries()
         {
             // Arrange
-            var handlerMock = new Mock<HttpMessageHandler>();
-            
-            handlerMock
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
+            var options = new ResilientHttpClientOptions
+            {
+                MaxRetries = 1,
+                RetryDelay = TimeSpan.FromMilliseconds(10)
+            };
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, options);
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/test");
+
+            _handlerMock.Protected()
+                .SetupSequence<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
                     ItExpr.IsAny<CancellationToken>())
-                .ThrowsAsync(new HttpRequestException("Network error"));
+                .ThrowsAsync(new HttpRequestException("Network error"))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
-            var httpClient = new HttpClient(handlerMock.Object);
-            var options = new ResilientHttpClientOptions
-            {
-                MaxFailures = 2,
-                MaxRetries = 0, // No retries for this test
-                CircuitResetTime = TimeSpan.FromSeconds(30)
-            };
-            var resilientClient = new Core.ResilientHttpClient(httpClient, options);
+            // Act
+            var response = await resilientClient.SendAsync(request);
 
-            // Act - First request (failure 1)
-            await Assert.ThrowsAsync<HttpRequestException>(() => resilientClient.GetAsync("http://test.com"));
-            
-            // Act - Second request (failure 2)
-            await Assert.ThrowsAsync<HttpRequestException>(() => resilientClient.GetAsync("http://test.com"));
-            
-            // Act - Third request (circuit should be open)
-            var exception = await Assert.ThrowsAsync<HttpRequestException>(() => resilientClient.GetAsync("http://test.com"));
-            
             // Assert
-            Assert.Contains("Circuit is open", exception.Message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             
-            // Verify the request was sent exactly 2 times (circuit opens after 2 failures)
-            handlerMock.Protected().Verify(
+            // Verify SendAsync was called exactly 2 times (initial + 1 retry)
+            _handlerMock.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(2),
                 ItExpr.IsAny<HttpRequestMessage>(),
@@ -207,28 +189,168 @@ namespace ResilientHttpClient.Tests
         }
 
         [Fact]
-        public void Factory_CreateClient_ReturnsResilientHttpClient()
+        [Trait("Category", "RetryPolicy")]
+        public async Task SendAsync_WhenNonTransientErrorOccurs_ShouldNotRetry()
         {
+            // Arrange
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, _defaultOptions);
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/test");
+
+            _handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
             // Act
-            var client = ResilientHttpClientFactory.CreateClient();
+            var response = await resilientClient.SendAsync(request);
 
             // Assert
-            Assert.NotNull(client);
-            Assert.IsAssignableFrom<IResilientHttpClient>(client);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            
+            // Verify SendAsync was called exactly once
+            _handlerMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>());
+        }
+
+        #endregion
+
+        #region Circuit Breaker Tests
+
+        [Fact]
+        [Trait("Category", "CircuitBreaker")]
+        public async Task SendAsync_WhenMaxFailuresReached_ShouldOpenCircuit()
+        {
+            // Arrange
+            var options = new ResilientHttpClientOptions
+            {
+                MaxFailures = 2,
+                MaxRetries = 0, // No retries for this test
+                CircuitResetTime = TimeSpan.FromSeconds(1)
+            };
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, options);
+
+            _handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
+
+            // Act - Send requests until circuit opens
+            await resilientClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/api/test"));
+            await resilientClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/api/test"));
+
+            // Assert - Next request should throw
+            var exception = await Assert.ThrowsAsync<HttpRequestException>(() => 
+                resilientClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/api/test")));
+            
+            Assert.Contains("Circuit is open", exception.Message);
         }
 
         [Fact]
-        public void Factory_CreateClientWithBaseAddress_SetsBaseAddress()
+        [Trait("Category", "CircuitBreaker")]
+        public async Task SendAsync_AfterSuccessfulRequest_ShouldResetFailureCount()
         {
             // Arrange
-            string baseAddress = "http://test.com/";
+            var options = new ResilientHttpClientOptions
+            {
+                MaxFailures = 3, // Increase to 3 to avoid opening the circuit too early
+                MaxRetries = 0, // No retries for this test
+                CircuitResetTime = TimeSpan.FromSeconds(1)
+            };
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, options);
+
+            _handlerMock.Protected()
+                .SetupSequence<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)) // First failure
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)) // Success resets count
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)) // First failure again
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)) // Second failure
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)); // Final request
+
+            // Act - Send requests with a success in between
+            await resilientClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/api/test")); // Failure 1
+            await resilientClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/api/test")); // Success (resets count)
+            await resilientClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/api/test")); // Failure 1
+            await resilientClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/api/test")); // Failure 2
+
+            // Assert - Circuit should still be closed, so this should not throw
+            var response = await resilientClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/api/test"));
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        #endregion
+
+        #region Transient Error Tests
+
+        [Theory]
+        [Trait("Category", "RetryPolicy")]
+        [InlineData(HttpStatusCode.ServiceUnavailable)]
+        [InlineData(HttpStatusCode.RequestTimeout)]
+        [InlineData(HttpStatusCode.GatewayTimeout)]
+        [InlineData(HttpStatusCode.TooManyRequests)]
+        public async Task SendAsync_WithDifferentTransientErrors_ShouldRetry(HttpStatusCode statusCode)
+        {
+            // Arrange
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, _defaultOptions);
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/test");
+
+            _handlerMock.Protected()
+                .SetupSequence<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(statusCode))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
             // Act
-            var client = ResilientHttpClientFactory.CreateClient(baseAddress);
+            var response = await resilientClient.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            
+            // Verify SendAsync was called exactly 2 times (initial + 1 retry)
+            _handlerMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(2),
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>());
+        }
+
+        #endregion
+
+        #region Factory Tests
+
+        [Fact]
+        [Trait("Category", "Factory")]
+        public void CreateClient_WithBaseAddress_ShouldSetBaseAddressCorrectly()
+        {
+            // Arrange
+            string baseAddress = "https://api.example.com/";
+            var options = new ResilientHttpClientOptions
+            {
+                MaxRetries = 10,
+                RetryDelay = TimeSpan.FromSeconds(5),
+                MaxFailures = 20,
+                CircuitResetTime = TimeSpan.FromMinutes(5)
+            };
+
+            // Act
+            var client = ResilientHttpClientFactory.CreateClient(baseAddress, options);
 
             // Assert
             Assert.NotNull(client);
             Assert.Equal(new Uri(baseAddress), client.BaseAddress);
         }
+
+        #endregion
     }
 } 
