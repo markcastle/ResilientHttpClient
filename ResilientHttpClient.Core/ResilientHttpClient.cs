@@ -505,6 +505,54 @@ namespace ResilientHttpClient.Core
             }
         }
 
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the response body as a string
+        /// in an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        public Task<string> GetStringAsync(string requestUri)
+        {
+            return GetStringAsync(CreateUri(requestUri), CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the response body as a string
+        /// in an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        public Task<string> GetStringAsync(Uri requestUri)
+        {
+            return GetStringAsync(requestUri, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the response body as a string
+        /// in an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        public Task<string> GetStringAsync(string requestUri, CancellationToken cancellationToken)
+        {
+            return GetStringAsync(CreateUri(requestUri), cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the response body as a string
+        /// in an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        public async Task<string> GetStringAsync(Uri requestUri, CancellationToken cancellationToken)
+        {
+            using var response = await GetAsync(requestUri, cancellationToken).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        }
+
         /// <inheritdoc/>
         public void Dispose()
         {

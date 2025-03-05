@@ -217,6 +217,83 @@ namespace ResilientHttpClient.Tests
                 ItExpr.IsAny<CancellationToken>());
         }
 
+        [Fact]
+        [Trait("Category", "BasicFunctionality")]
+        public async Task GetStringAsync_WhenRequestIsSuccessful_ShouldReturnResponseContent()
+        {
+            // Arrange
+            var expectedContent = "Test response content";
+            var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(expectedContent)
+            };
+
+            _handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(expectedResponse);
+
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, _defaultOptions);
+
+            // Act
+            var result = await resilientClient.GetStringAsync("https://example.com/api/test");
+
+            // Assert
+            Assert.Equal(expectedContent, result);
+            
+            // Verify SendAsync was called exactly once with a GET request
+            _handlerMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req => 
+                    req.Method == HttpMethod.Get && 
+                    req.RequestUri.ToString() == "https://example.com/api/test"),
+                ItExpr.IsAny<CancellationToken>());
+        }
+
+        [Fact]
+        [Trait("Category", "RetryPolicy")]
+        public async Task GetStringAsync_WhenTransientErrorOccurs_ShouldRetryAndReturnContent()
+        {
+            // Arrange
+            var expectedContent = "Test response content";
+            var failureResponse = new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+            var successResponse = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(expectedContent)
+            };
+
+            _handlerMock.Protected()
+                .SetupSequence<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(failureResponse)
+                .ReturnsAsync(successResponse);
+
+            var options = new ResilientHttpClientOptions
+            {
+                MaxRetries = 1,
+                RetryDelay = TimeSpan.FromMilliseconds(10)
+            };
+            var resilientClient = new Core.ResilientHttpClient(_httpClient, options);
+
+            // Act
+            var result = await resilientClient.GetStringAsync("https://example.com/api/test");
+
+            // Assert
+            Assert.Equal(expectedContent, result);
+            
+            // Verify SendAsync was called exactly twice
+            _handlerMock.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(2),
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>());
+        }
+
         #endregion
 
         #region Circuit Breaker Tests

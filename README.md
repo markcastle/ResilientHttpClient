@@ -10,6 +10,7 @@ A drop-in replacement for HttpClient that adds common resiliency patterns such a
 - **Drop-in Replacement**: Implements the same interface as HttpClient, making it easy to replace existing code.
 - **No External Dependencies**: Uses only native .NET Standard 2.1 features, making it compatible with Unity.
 - **Well-Tested**: Comprehensive unit tests ensure reliability and correct behavior.
+- **Complete API Coverage**: Supports all HttpClient methods including GetStringAsync for direct string responses.
 
 ## Installation
 
@@ -77,6 +78,17 @@ var client = ResilientHttpClientFactory.CreateClient(options);
 var client = ResilientHttpClientFactory.CreateClient("https://api.example.com", options);
 ```
 
+### Getting String Content Directly
+
+```csharp
+// Get response content as a string directly
+var content = await client.GetStringAsync("https://api.example.com/data");
+
+// With cancellation token
+var cts = new CancellationTokenSource();
+var content = await client.GetStringAsync("https://api.example.com/data", cts.Token);
+```
+
 ### Manual Creation
 
 ```csharp
@@ -121,6 +133,7 @@ The tests cover:
 - Circuit breaker pattern
 - Error handling
 - Factory methods
+- String content retrieval
 
 ## License
 

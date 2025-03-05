@@ -225,5 +225,39 @@ namespace ResilientHttpClient.Core
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>The HTTP response message.</returns>
         Task<HttpResponseMessage> DeleteAsync(Uri requestUri, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the response body as a string
+        /// in an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        Task<string> GetStringAsync(string requestUri);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the response body as a string
+        /// in an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        Task<string> GetStringAsync(Uri requestUri);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the response body as a string
+        /// in an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        Task<string> GetStringAsync(string requestUri, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the response body as a string
+        /// in an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        Task<string> GetStringAsync(Uri requestUri, CancellationToken cancellationToken);
     }
 } 
