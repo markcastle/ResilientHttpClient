@@ -120,4 +120,7 @@ TestResults/
 [Dd]ist/
 msbuild.log
 msbuild.err
-msbuild.wrn 
+msbuild.wrn
+
+# Environment files
+.env 

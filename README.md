@@ -31,11 +31,20 @@ The project includes two batch files to simplify building:
 - **build.bat**: Builds the project in Release mode and outputs the DLL location.
 - **build-and-copy.bat**: Builds the project and optionally copies the DLL to your Unity project.
 
-To build and copy to a Unity project:
+To build and copy to a Unity project, you have two options:
 
-```
-build-and-copy.bat "C:\Path\To\Your\UnityProject"
-```
+1. Pass the path as a command-line argument:
+   ```
+   build-and-copy.bat "C:\Path\To\Your\UnityProject"
+   ```
+
+2. Create a `.env` file in the project root with your Unity project path:
+   ```
+   UNITY_PROJECT_PATH=C:\Path\To\Your\UnityProject
+   ```
+   Then simply run `build-and-copy.bat` without arguments.
+
+A sample `.env.example` file is provided that you can copy and modify.
 
 ## Usage
 
