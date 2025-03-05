@@ -106,12 +106,102 @@ var httpClient = new HttpClient();
 var resilientClient = new ResilientHttpClient(httpClient, options);
 ```
 
-## Configuration Options
+## Understanding Resilience Options
 
-- **MaxRetries**: Maximum number of retry attempts for transient failures (default: 3)
-- **RetryDelay**: Delay between retry attempts (default: 1 second)
-- **MaxFailures**: Number of failures before the circuit breaker opens (default: 5)
-- **CircuitResetTime**: Time to keep the circuit breaker open before allowing a trial request (default: 30 seconds)
+The `ResilientHttpClient` provides several options to customize its behavior when dealing with failures. Here's a detailed explanation of each option:
+
+### Retry Policy Options
+
+#### MaxRetries
+**Default value**: 3  
+**What it does**: Controls how many times the client will retry a failed request before giving up.
+
+**In simple terms**: If your app tries to fetch data and the server is temporarily busy, this setting determines how many additional attempts your app will make before telling you it couldn't get the data.
+
+**Example scenarios**:
+- **Low value (1-2)**: Good for non-critical operations or when quick feedback is more important than success.
+- **Medium value (3-5)**: Balanced approach for most API calls.
+- **High value (6+)**: For critical operations where success is essential, even if it takes longer.
+
+#### RetryDelay
+**Default value**: 1 second  
+**What it does**: Sets how long the client will wait between retry attempts.
+
+**In simple terms**: This is the "cooling off" period between attempts. Like waiting a moment before trying to open a jammed door again.
+
+**Example scenarios**:
+- **Short delay (0.1-0.5s)**: For time-sensitive operations where quick retries are important.
+- **Medium delay (1-3s)**: Good balance for most scenarios, giving the server time to recover.
+- **Long delay (5s+)**: For scenarios where the server might need more time to recover, or to avoid overwhelming it.
+
+**Note**: Longer delays mean your users wait longer for responses, but too short delays might not give the server enough time to recover.
+
+### Circuit Breaker Options
+
+#### MaxFailures
+**Default value**: 5  
+**What it does**: Determines how many consecutive failures must occur before the circuit "opens" (temporarily stops all requests).
+
+**In simple terms**: This is like a circuit breaker in your home. If too many failures happen in a row, the client stops trying to prevent further damage or resource waste.
+
+**Example scenarios**:
+- **Low value (2-3)**: Very sensitive, will "trip" quickly. Good for critical systems where you want to fail fast.
+- **Medium value (5-10)**: Balanced approach that tolerates some failures but protects against sustained problems.
+- **High value (15+)**: More tolerant of failures, good when occasional errors are normal or when the service is less reliable.
+
+#### CircuitResetTime
+**Default value**: 30 seconds  
+**What it does**: Controls how long the circuit stays open before allowing a "test" request to check if the service has recovered.
+
+**In simple terms**: After the circuit breaker trips, this is how long your app will wait before trying the service again.
+
+**Example scenarios**:
+- **Short time (5-15s)**: For services that recover quickly or when availability is critical.
+- **Medium time (30-60s)**: Good balance for most services.
+- **Long time (2min+)**: For services that take longer to recover or when you want to ensure stability before resuming normal operations.
+
+### Putting It All Together
+
+These options work together to create a resilient HTTP client:
+
+1. When a request fails with a transient error, the client will retry up to `MaxRetries` times, waiting `RetryDelay` between attempts.
+2. If failures continue and reach `MaxFailures` consecutive failures, the circuit opens and all requests immediately fail with a "Circuit is open" exception.
+3. After `CircuitResetTime` has passed, the circuit allows one test request through. If it succeeds, the circuit closes and normal operation resumes. If it fails, the circuit stays open for another `CircuitResetTime` period.
+
+### Recommended Configurations
+
+#### For Most Applications
+```csharp
+var options = new ResilientHttpClientOptions
+{
+    MaxRetries = 3,
+    RetryDelay = TimeSpan.FromSeconds(1),
+    MaxFailures = 5,
+    CircuitResetTime = TimeSpan.FromSeconds(30)
+};
+```
+
+#### For Critical Operations
+```csharp
+var options = new ResilientHttpClientOptions
+{
+    MaxRetries = 5,
+    RetryDelay = TimeSpan.FromSeconds(2),
+    MaxFailures = 3,
+    CircuitResetTime = TimeSpan.FromSeconds(15)
+};
+```
+
+#### For Background Operations
+```csharp
+var options = new ResilientHttpClientOptions
+{
+    MaxRetries = 10,
+    RetryDelay = TimeSpan.FromSeconds(5),
+    MaxFailures = 10,
+    CircuitResetTime = TimeSpan.FromMinutes(2)
+};
+```
 
 ## Transient Errors
 
