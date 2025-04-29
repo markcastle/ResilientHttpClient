@@ -116,6 +116,13 @@ TestResults/
 *.coverage
 *.coveragexml
 
+# Code Coverage
+coveragereport/
+coverage*.xml
+coverage*.json
+*.coverage
+*.lcov
+
 # Build Results
 [Dd]ist/
 msbuild.log
