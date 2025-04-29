@@ -1,31 +1,54 @@
-# ResilientHttpClient
+# ResilientHttpClient 🚀
+
+```
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)
+![.NET Standard](https://img.shields.io/badge/.NET%20Standard-2.1-blueviolet?style=flat-square)
+```
+
+🎉 **Welcome to ResilientHttpClient!**
 
 A drop-in replacement for HttpClient that adds common resiliency patterns such as circuit breaker, retry, and timeout. This library is compatible with .NET Standard 2.1 and can be used in Unity projects.
 
-## Features
+---
 
-- **Circuit Breaker Pattern**: Prevents cascading failures by stopping requests after a certain number of failures.
-- **Retry Pattern**: Automatically retries transient failures with configurable retry count and delay.
-- **Timeout Handling**: Properly handles timeouts and treats them as transient failures.
-- **Drop-in Replacement**: Implements the same interface as HttpClient, making it easy to replace existing code.
-- **No External Dependencies**: Uses only native .NET Standard 2.1 features, making it compatible with Unity.
-- **Well-Tested**: Comprehensive unit tests ensure reliability and correct behavior.
-- **Complete API Coverage**: Supports all HttpClient methods including GetStringAsync for direct string responses.
-- **Per-Request Policies**: Customize resilience behavior for individual requests using a fluent interface.
+## ✨ Features
 
-## Installation
+- **🛡️ Circuit Breaker Pattern**: Prevents cascading failures by stopping requests after a certain number of failures.
+- **🔁 Retry Pattern**: Automatically retries transient failures with configurable retry count and delay.
+- **⏱️ Timeout Handling**: Properly handles timeouts and treats them as transient failures.
+- **🔄 Drop-in Replacement**: Implements the same interface as HttpClient, making it easy to replace existing code.
+- **📦 No External Dependencies**: Uses only native .NET Standard 2.1 features, making it compatible with Unity.
+- **✅ Well-Tested**: Comprehensive unit tests ensure reliability and correct behavior.
+- **🧰 Complete API Coverage**: Supports all HttpClient methods including GetStringAsync for direct string responses.
+- **🎯 Per-Request Policies**: Customize resilience behavior for individual requests using a fluent interface.
+
+---
+
+## ⚡ Quickstart
+
+```csharp
+var client = ResilientHttpClientFactory.CreateClient();
+var response = await client.GetAsync("https://api.example.com/data");
+```
+
+---
+
+## 📦 Installation
 
 ### For .NET Projects
 
-1. Add the ResilientHttpClient.Core.dll to your project references.
-2. Make sure you have a reference to System.Net.Http in your project.
+1. Add the `ResilientHttpClient.Core.dll` to your project references.
+2. Make sure you have a reference to `System.Net.Http` in your project.
 
 ### For Unity Projects
 
-1. Place the ResilientHttpClient.Core.dll in your Assets/Plugins folder.
+1. Place the `ResilientHttpClient.Core.dll` in your `Assets/Plugins` folder.
 2. No additional dependencies are required.
 
-## Building from Source
+---
+
+## 🛠️ Building from Source
 
 The project includes two batch files to simplify building:
 
@@ -47,7 +70,9 @@ To build and copy to a Unity project, you have two options:
 
 A sample `.env.example` file is provided that you can copy and modify.
 
-## Usage
+---
+
+## 🚦 Usage
 
 ### Basic Usage
 
@@ -114,7 +139,7 @@ var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/da
 var response = await client.SendAsync(request);
 ```
 
-#### Bypassing the Circuit Breaker
+#### Bypassing the Circuit Breaker 📴
 
 For critical requests that should be attempted even when the circuit is open:
 
@@ -125,7 +150,7 @@ var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/cr
 var response = await client.SendAsync(request);
 ```
 
-#### Disabling Retries
+#### Disabling Retries 🚫🔁
 
 For non-critical requests where immediate feedback is more important than success:
 
@@ -136,7 +161,7 @@ var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/no
 var response = await client.SendAsync(request);
 ```
 
-#### Combining Multiple Policy Options
+#### Combining Multiple Policy Options 🧩
 
 You can combine multiple policy options for fine-grained control:
 
@@ -158,11 +183,13 @@ var httpClient = new HttpClient();
 var resilientClient = new ResilientHttpClient(httpClient, options);
 ```
 
-## Understanding Resilience Options
+---
+
+## ⚙️ Understanding Resilience Options
 
 The `ResilientHttpClient` provides several options to customize its behavior when dealing with failures. Here's a detailed explanation of each option:
 
-### Retry Policy Options
+### 🔁 Retry Policy Options
 
 #### MaxRetries
 **Default value**: 3  
@@ -188,7 +215,7 @@ The `ResilientHttpClient` provides several options to customize its behavior whe
 
 **Note**: Longer delays mean your users wait longer for responses, but too short delays might not give the server enough time to recover.
 
-### Circuit Breaker Options
+### ⚡ Circuit Breaker Options
 
 #### MaxFailures
 **Default value**: 5  
@@ -212,7 +239,7 @@ The `ResilientHttpClient` provides several options to customize its behavior whe
 - **Medium time (30-60s)**: Good balance for most services.
 - **Long time (2min+)**: For services that take longer to recover or when you want to ensure stability before resuming normal operations.
 
-### Putting It All Together
+### 🧩 Putting It All Together
 
 These options work together to create a resilient HTTP client:
 
@@ -220,7 +247,7 @@ These options work together to create a resilient HTTP client:
 2. If failures continue and reach `MaxFailures` consecutive failures, the circuit opens and all requests immediately fail with a "Circuit is open" exception.
 3. After `CircuitResetTime` has passed, the circuit allows one test request through. If it succeeds, the circuit closes and normal operation resumes. If it fails, the circuit stays open for another `CircuitResetTime` period.
 
-### Recommended Configurations
+### 📝 Recommended Configurations
 
 #### For Most Applications
 ```csharp
@@ -255,7 +282,9 @@ var options = new ResilientHttpClientOptions
 };
 ```
 
-## Transient Errors
+---
+
+## 🚨 Transient Errors
 
 The following HTTP status codes are considered transient errors and will trigger the retry mechanism:
 
@@ -266,11 +295,13 @@ The following HTTP status codes are considered transient errors and will trigger
 - 503 (Service Unavailable)
 - 504 (Gateway Timeout)
 
-Additionally, network errors (HttpRequestException) and timeouts (TaskCanceledException when not user-initiated) are also treated as transient errors.
+Additionally, network errors (`HttpRequestException`) and timeouts (`TaskCanceledException` when not user-initiated) are also treated as transient errors.
 
-## Development
+---
 
-### Running Tests
+## 👩‍💻 Development
+
+### 🧪 Running Tests
 
 The project includes comprehensive unit tests using xUnit and Moq. To run the tests:
 
@@ -286,6 +317,14 @@ The tests cover:
 - Factory methods
 - String content retrieval
 
-## License
+---
 
-MIT 
+## 🤝 Contributing
+
+Contributions, issues and feature requests are welcome! Feel free to check [issues page](../../issues) or submit a pull request. Let’s make .NET HTTP resilient for everyone! 💪
+
+---
+
+## 📄 License
+
+MIT
