@@ -1,10 +1,8 @@
 # ResilientHttpClient 🚀
 
-```
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)
 ![.NET Standard](https://img.shields.io/badge/.NET%20Standard-2.1-blueviolet?style=flat-square)
-```
 
 🎉 **Welcome to ResilientHttpClient!**
 
