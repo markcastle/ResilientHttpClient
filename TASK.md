@@ -11,6 +11,45 @@ Improving code coverage ensures reliability, maintainability, and confidence in 
 - [ ] Review the latest coverage report and list all uncovered files, classes, and methods.
 - [ ] Identify critical logic and branches that are not tested.
 
+## Epic 1.1: Audit Current Coverage (Detailed – ResilientHttpClient)
+
+### Constructor Logic
+- [ ] Test default constructor with valid HttpClient
+- [ ] Test constructor with null HttpClient (should throw)
+- [ ] Test constructor with custom ResilientHttpClientOptions (including null options)
+
+### SendAsync / Retry / Circuit Breaker
+- [ ] Test normal successful request
+- [ ] Test transient failure with retry logic (simulate 5xx, 408, etc.)
+- [ ] Test retry exhaustion (should increment failure count and eventually open circuit)
+- [ ] Test circuit breaker opens after max failures
+- [ ] Test request when circuit is open (should throw immediately)
+- [ ] Test bypassing circuit breaker with request policy
+- [ ] Test timeout handling (simulate TaskCanceledException)
+- [ ] Test cancellation token cancels request
+- [ ] Test error handling for null request
+- [ ] Test all branches: success, retry, circuit open, exception, cancellation
+
+### GetAsync / PostAsync / PutAsync / DeleteAsync
+- [ ] Test all overloads for null arguments
+- [ ] Test correct HTTP method is used
+- [ ] Test response content is handled correctly
+
+### GetStringAsync
+- [ ] Test with valid and invalid URIs
+- [ ] Test that response body is returned as string
+- [ ] Test error/exception cases (e.g., non-success status)
+
+### Dispose Pattern
+- [ ] Test Dispose releases resources
+- [ ] Test double-dispose does not throw
+- [ ] Test using pattern (using var client = ...)
+
+### Private Helpers
+- [ ] Test IncrementFailureCount and ResetFailureCount via public API (circuit breaker, retry)
+- [ ] Test CreateUri with valid/invalid strings
+- [ ] Test CloneHttpRequestMessage for all supported scenarios
+
 ## Epic 1.2: Cover Core Client Logic
 - [ ] Write tests for all uncovered methods in `ResilientHttpClient`
 - [ ] Ensure all retry, timeout, and circuit breaker paths are tested (success, failure, edge cases)
