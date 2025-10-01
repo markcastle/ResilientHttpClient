@@ -8,11 +8,23 @@
     <PackageId>ResilientHttpClient.Core</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
     <Authors>CaptiveReality</Authors>
-    <Description>A resilient HTTP client library that implements common resiliency patterns such as circuit breaker, retry, and timeout.</Description>
-    <PackageTags>http;client;resilient;circuit-breaker;retry;timeout</PackageTags>
+    <Company>CaptiveReality</Company>
+    <Product>ResilientHttpClient</Product>
+    <Description>A drop-in replacement for HttpClient that adds common resiliency patterns such as circuit breaker, retry, and timeout. Compatible with .NET Standard 2.1 and Unity projects. Features: Circuit Breaker Pattern, Automatic Retry Logic, Timeout Handling, Per-Request Policies, No External Dependencies, Well-Tested (82%+ coverage).</Description>
+    <PackageTags>http;client;resilient;circuit-breaker;retry;timeout;unity;netstandard;httpclient;resilience;polly-alternative</PackageTags>
+    <PackageProjectUrl>https://github.com/CaptiveReality/ResilientHttpClient</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CaptiveReality/ResilientHttpClient</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Initial release with circuit breaker, retry, and timeout patterns. Fully compatible with Unity and .NET Standard 2.1.</PackageReleaseNotes>
+    <Copyright>Copyright (c) 2025 CaptiveReality</Copyright>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
