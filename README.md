@@ -71,6 +71,42 @@ A sample `.env.example` file is provided that you can copy and modify.
 
 ---
 
+## 🎯 Demo & Examples
+
+Want to see ResilientHttpClient in action? We've included a simple console demo that showcases all the key features!
+
+### Running the Demo
+
+```bash
+cd ResilientHttpClient.Demo
+dotnet run
+```
+
+Or from the solution root:
+
+```bash
+dotnet run --project ResilientHttpClient.Demo
+```
+
+### What the Demo Shows
+
+The demo includes 4 complete examples:
+
+1. **Basic GET Request** - Simple usage with the factory pattern
+2. **Retry Logic** - Automatic retries on transient failures
+3. **Custom Policies** - Per-request configuration using the fluent API
+4. **Circuit Breaker** - Protection against cascading failures
+
+Each example includes:
+- Clear console output with success/failure indicators
+- Detailed code comments explaining what's happening
+- Real-world API calls (uses JSONPlaceholder for testing)
+- Educational notes about when features activate
+
+**Perfect for:** Learning the library, testing features, or copying code snippets into your project!
+
+---
+
 ## 🚦 Usage
 
 ### Basic Usage

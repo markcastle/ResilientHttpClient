@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResilientHttpClient.Core", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResilientHttpClient.Tests", "ResilientHttpClient.Tests\ResilientHttpClient.Tests.csproj", "{4686385F-207E-4514-B62B-4221478D14D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResilientHttpClient.Demo", "ResilientHttpClient.Demo\ResilientHttpClient.Demo.csproj", "{F8E6E21B-AEA1-485E-833A-6A0261AAD846}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{4686385F-207E-4514-B62B-4221478D14D7}.Release|x64.Build.0 = Release|Any CPU
 		{4686385F-207E-4514-B62B-4221478D14D7}.Release|x86.ActiveCfg = Release|Any CPU
 		{4686385F-207E-4514-B62B-4221478D14D7}.Release|x86.Build.0 = Release|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Debug|x64.Build.0 = Debug|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Debug|x86.Build.0 = Debug|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Release|x64.ActiveCfg = Release|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Release|x64.Build.0 = Release|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Release|x86.ActiveCfg = Release|Any CPU
+		{F8E6E21B-AEA1-485E-833A-6A0261AAD846}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -172,6 +172,50 @@ Improving code coverage ensures reliability, maintainability, and confidence in 
 
 ---
 
+## Epic 2.0: Simple Console Demo 🎯
+
+**Goal**: Create a simple console app showing the library in action
+
+### Setup
+- [x] Create new console project: `ResilientHttpClient.Demo`
+- [x] Add reference to ResilientHttpClient.Core
+- [x] Add to solution file
+
+### Demo Examples (Keep it Simple)
+- [x] **Example 1: Basic GET request**
+  - Create client with factory
+  - Make simple GET request
+  - Print response
+  
+- [x] **Example 2: Show retry in action**
+  - Use JSONPlaceholder API (or similar free API)
+  - Configure retry settings
+  - Display when retries happen
+  
+- [x] **Example 3: Custom policy**
+  - Show how to use WithPolicy()
+  - Custom retry count and delay
+  
+- [x] **Example 4: Circuit breaker demo**
+  - Simple demo of circuit opening/closing
+  - Clear console output showing state changes
+
+### Output
+- [x] Clean console output (no fancy UI needed)
+- [x] Comments in code explaining what's happening
+- [x] README.md in demo folder with run instructions
+
+---
+
+## Progress Tracking - Epic 2.0
+- [x] Console demo created ✅
+- [x] Examples working (4 examples complete) ✅
+- [x] Demo README added ✅
+- [x] Main README updated with demo section ✅
+- [x] **Epic 2.0 Complete!** 🎉
+
+---
+
 ## Epic 1.9: Maximum Coverage Achievement - 95%+ 🏆
 
 ### ✅ ACHIEVED: 95.2% line, 88.97% branch
