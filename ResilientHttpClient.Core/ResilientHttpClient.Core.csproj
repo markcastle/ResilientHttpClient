@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>ResilientHttpClient.Core</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>CaptiveReality</Authors>
+    <Description>A resilient HTTP client library that implements common resiliency patterns such as circuit breaker, retry, and timeout.</Description>
+    <PackageTags>http;client;resilient;circuit-breaker;retry;timeout</PackageTags>
+    <RepositoryUrl>https://github.com/CaptiveReality/ResilientHttpClient</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+</Project>
