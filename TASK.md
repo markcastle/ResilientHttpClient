@@ -216,6 +216,66 @@ Improving code coverage ensures reliability, maintainability, and confidence in 
 
 ---
 
+## Epic 2.1: Critical Fixes Before v1.0 🔧
+
+**Goal**: Address critical design issues identified in code review while maintaining HttpClient compatibility
+
+### Critical Fix: Request Content Cloning
+**Problem**: Content is shared, not cloned during retries. POST/PUT with non-seekable content will fail on retry.
+
+- [ ] **Fix CloneHttpRequestMessage to clone content**
+  - Read content into memory before cloning
+  - Create new ByteArrayContent for clone
+  - Copy all content headers to cloned content
+  - Add test: POST request with StringContent that gets retried
+  - Add test: PUT request with ByteArrayContent that gets retried
+  - Add test: Request with no content (should not break)
+  
+### Critical Documentation: HttpClient Instance Reuse
+**Problem**: Factory creates new HttpClient instances (socket exhaustion anti-pattern)
+
+- [ ] **Add "Best Practices" section to README**
+  - ⚠️ Warning about creating ONE instance per application
+  - Show singleton pattern example
+  - Explain socket exhaustion issue
+  - Code example for Unity: static readonly field
+  - Code example for DI: AddSingleton
+  
+- [ ] **Update Quickstart section**
+  - Add comment showing reuse pattern
+  - Link to Best Practices section
+
+### Documentation: Design Decisions
+**Problem**: Some design choices need to be documented as intentional for Unity compatibility
+
+- [ ] **Add "Architecture Decisions" section to README or separate doc**
+  - Per-instance circuit breaker (explain why)
+  - HttpRequestMessage.Properties usage (.NET Standard 2.1)
+  - Static retry delay (exponential backoff planned for v1.1)
+  - Large interface mirroring HttpClient (intentional)
+  
+- [ ] **Add XML doc comments to ResilientHttpClientFactory**
+  - Document that HttpClient instances are created fresh
+  - Recommend singleton usage pattern
+  - Add remarks about socket exhaustion
+
+### Optional: Thread Safety Improvements
+- [ ] **Review thread safety in circuit breaker**
+  - Consider locking _circuitOpenTime reads in IsCircuitOpen()
+  - Add concurrent access tests
+  - Document thread safety guarantees
+
+---
+
+## Progress Tracking - Epic 2.1
+- [ ] Content cloning fixed
+- [ ] Best Practices documentation added
+- [ ] Architecture decisions documented
+- [ ] Thread safety reviewed
+- [ ] All changes tested and validated
+
+---
+
 ## Epic 1.9: Maximum Coverage Achievement - 95%+ 🏆
 
 ### ✅ ACHIEVED: 95.2% line, 88.97% branch
