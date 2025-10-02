@@ -21,12 +21,20 @@ A drop-in replacement for HttpClient that adds common resiliency patterns such a
 - **✅ Well-Tested**: Comprehensive unit tests ensure reliability and correct behavior.
 - **🧰 Complete API Coverage**: Supports all HttpClient methods including GetStringAsync for direct string responses.
 - **🎯 Per-Request Policies**: Customize resilience behavior for individual requests using a fluent interface.
+- **🔌 Dependency Injection**: First-class support for ASP.NET Core DI with named clients and configuration.
 
 ---
 
 ## 🔧 Recent Improvements
 
 ### v0.9.0 - Pre-Release (October 2025)
+
+**🆕 New Features:**
+- **Dependency Injection Package** - Added `ResilientHttpClient.Extensions.DependencyInjection` for seamless ASP.NET Core integration
+  - Simple registration: `services.AddResilientHttpClient()`
+  - Named clients support: `services.AddNamedResilientHttpClient("GitHub", "https://api.github.com")`
+  - Configurable lifetimes (Singleton/Scoped/Transient)
+  - 25 comprehensive tests (all passing)
 
 **🐛 Critical Bug Fixes:**
 - **Fixed content cloning in retry scenarios** - POST/PUT requests with content now properly clone the HttpContent during retries, preventing "Cannot access a disposed object" errors. Previously, content was shared between retry attempts, causing failures when the content stream was already consumed.
@@ -293,6 +301,125 @@ var response = await client.SendAsync(request);
 var httpClient = new HttpClient();
 var resilientClient = new ResilientHttpClient(httpClient, options);
 ```
+
+---
+
+## 🔌 Dependency Injection (ASP.NET Core)
+
+**NEW!** Use the `ResilientHttpClient.Extensions.DependencyInjection` package for seamless integration with Microsoft DI.
+
+### Installation
+
+```bash
+# Install the DI extension package
+dotnet add package ResilientHttpClient.Extensions.DependencyInjection
+```
+
+### Basic Registration
+
+**Simple registration with defaults:**
+
+```csharp
+// In Program.cs or Startup.cs
+services.AddResilientHttpClient();
+
+// Inject and use
+public class MyService
+{
+    private readonly IResilientHttpClient _client;
+    
+    public MyService(IResilientHttpClient client)
+    {
+        _client = client;
+    }
+}
+```
+
+**With base address and configuration:**
+
+```csharp
+services.AddResilientHttpClient("https://api.example.com", options =>
+{
+    options.MaxRetries = 5;
+    options.RetryDelay = TimeSpan.FromSeconds(2);
+    options.CircuitResetTime = TimeSpan.FromSeconds(60);
+});
+```
+
+### Named Clients
+
+Register multiple clients for different APIs:
+
+```csharp
+// Register multiple named clients
+services.AddNamedResilientHttpClient("GitHub", "https://api.github.com", options =>
+{
+    options.MaxRetries = 3;
+});
+
+services.AddNamedResilientHttpClient("MyAPI", "https://myapi.com", options =>
+{
+    options.MaxRetries = 5;
+    options.RetryDelay = TimeSpan.FromMilliseconds(500);
+});
+
+// Inject the factory and resolve by name
+public class MyService
+{
+    private readonly IResilientHttpClient _githubClient;
+    private readonly IResilientHttpClient _apiClient;
+    
+    public MyService(IResilientHttpClientFactory factory)
+    {
+        _githubClient = factory.CreateClient("GitHub");
+        _apiClient = factory.CreateClient("MyAPI");
+    }
+    
+    public async Task<string> GetGitHubRepo(string owner, string repo)
+    {
+        var response = await _githubClient.GetAsync($"/repos/{owner}/{repo}");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
+}
+```
+
+### Configuration from appsettings.json (Coming Soon)
+
+```json
+{
+  "ResilientHttpClient": {
+    "MaxRetries": 5,
+    "RetryDelay": "00:00:02",
+    "CircuitResetTime": "00:00:30",
+    "MaxFailures": 10
+  }
+}
+```
+
+```csharp
+services.Configure<ResilientHttpClientOptions>(
+    Configuration.GetSection("ResilientHttpClient"));
+services.AddResilientHttpClient();
+```
+
+### Lifetime Options
+
+By default, the client is registered as a **Singleton** (recommended). You can change this:
+
+```csharp
+// Scoped lifetime (new instance per request)
+services.AddResilientHttpClient(
+    configure: options => { /* ... */ },
+    lifetime: ServiceLifetime.Scoped);
+
+// Transient lifetime (new instance every time)
+services.AddResilientHttpClient(
+    configure: options => { /* ... */ },
+    lifetime: ServiceLifetime.Transient);
+```
+
+**⚠️ Note:** Singleton is recommended to avoid socket exhaustion. See [Best Practices](#️-best-practices) below.
 
 ---
 

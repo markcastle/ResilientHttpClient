@@ -299,6 +299,209 @@ Improving code coverage ensures reliability, maintainability, and confidence in 
 
 ---
 
+## Epic 2.5: Microsoft Dependency Injection Integration 🔌
+
+**Goal**: Create a dedicated package (`ResilientHttpClient.Extensions.DependencyInjection`) that provides seamless integration with Microsoft.Extensions.DependencyInjection, making it easy to use in ASP.NET Core and other .NET applications.
+
+### Problem Statement
+Currently, users need to manually register `ResilientHttpClient` in DI containers:
+```csharp
+// Current approach - manual registration
+services.AddSingleton<IResilientHttpClient>(sp => 
+    ResilientHttpClientFactory.CreateClient("https://api.example.com", options));
+```
+
+This is error-prone and doesn't follow .NET conventions. We need a fluent API similar to `IHttpClientFactory`.
+
+### Proposed Solution
+Create an extension package that provides:
+```csharp
+// Desired API - fluent and idiomatic
+services.AddResilientHttpClient("MyApiClient", options => 
+{
+    options.BaseAddress = "https://api.example.com";
+    options.MaxRetries = 3;
+    options.CircuitResetTime = TimeSpan.FromSeconds(30);
+});
+```
+
+### Implementation Tasks
+
+#### Phase 1: Project Setup
+- [x] **Create new project: ResilientHttpClient.Extensions.DependencyInjection** ✅
+  - [x] Target: .NET Standard 2.1 (for Unity compatibility)
+  - [x] Add reference to ResilientHttpClient.Core
+  - [x] Add NuGet: Microsoft.Extensions.DependencyInjection.Abstractions (2.1.0)
+  - [x] Add NuGet: Microsoft.Extensions.Options (2.1.0)
+  - [x] Added to solution
+  
+#### Phase 2: Core Extension Methods
+- [x] **Create ServiceCollectionExtensions class** ✅
+  - [x] `AddResilientHttpClient()` - default options
+  - [x] `AddResilientHttpClient(Action<ResilientHttpClientOptions> configure, ServiceLifetime lifetime)` - with options
+  - [x] `AddResilientHttpClient(string baseAddress, Action<ResilientHttpClientOptions> configure, ServiceLifetime lifetime)` - with base address
+  - [x] `AddResilientHttpClient(ResilientHttpClientOptions options, ServiceLifetime lifetime)` - explicit options
+  - [x] Register as Singleton by default
+  - [x] Configurable lifetime support
+
+#### Phase 3: Named Clients Support
+- [x] **Implement IHttpClientFactory-style named clients** ✅
+  ```csharp
+  services.AddNamedResilientHttpClient("GitHub", "https://api.github.com", opt => { });
+  services.AddNamedResilientHttpClient("MyAPI", "https://myapi.com");
+  
+  // Inject and resolve by name
+  public class MyService
+  {
+      private readonly IResilientHttpClient _githubClient;
+      
+      public MyService(IResilientHttpClientFactory factory)
+      {
+          _githubClient = factory.CreateClient("GitHub");
+      }
+  }
+  ```
+  - [x] Created `IResilientHttpClientFactory` interface
+  - [x] Implemented factory with named client resolution
+  - [x] Created NamedClientExtensions with `AddNamedResilientHttpClient()` methods
+  - [x] Factory automatically registered as singleton
+
+#### Phase 4: Options Pattern Integration
+- [ ] **Integrate with IOptions<T> pattern**
+  ```csharp
+  // appsettings.json
+  {
+    "ResilientHttpClient": {
+      "MaxRetries": 5,
+      "CircuitResetTime": "00:00:45"
+    }
+  }
+  
+  // Startup.cs
+  services.Configure<ResilientHttpClientOptions>(
+      Configuration.GetSection("ResilientHttpClient"));
+  services.AddResilientHttpClient();
+  ```
+  - Support IOptions<ResilientHttpClientOptions>
+  - Support IOptionsSnapshot for runtime updates
+  - Validate options on registration
+
+#### Phase 5: Advanced Features
+- [ ] **Health checks integration**
+  - Expose circuit breaker state for health checks
+  - Implement IHealthCheck for monitoring
+  
+- [ ] **Typed clients support**
+  ```csharp
+  services.AddResilientHttpClient<IGitHubApiClient, GitHubApiClient>(opt => 
+      opt.BaseAddress = "https://api.github.com");
+  ```
+  
+- [ ] **HttpMessageHandler integration**
+  - Allow custom message handlers in the pipeline
+  - Support delegating handlers for logging, auth, etc.
+
+#### Phase 6: Testing
+- [x] **Create comprehensive unit tests** ✅
+  - [x] Test service registration (multiple overloads)
+  - [x] Test options configuration
+  - [x] Test named client resolution
+  - [x] Test singleton/scoped/transient lifecycle
+  - [x] Test options validation (null checks)
+  - [x] Test with actual DI container (ServiceCollection)
+  - [x] Test multiple named clients
+  - [x] Test unknown client name throws exception
+  - [x] 25 tests created, all passing ✅
+  
+- [ ] **Create integration tests** (Optional - basic tests done)
+  - [ ] Test with ASP.NET Core WebApplicationBuilder
+  - [ ] Test configuration binding from appsettings.json
+
+#### Phase 7: Documentation
+- [x] **Update README.md** ✅
+  - [x] Added "Dependency Injection" section
+  - [x] Show ASP.NET Core examples
+  - [x] Show basic and advanced registration patterns
+  - [x] Document named clients pattern with full examples
+  - [x] Updated Features section
+  - [x] Updated Recent Improvements section
+  
+- [ ] **Create samples project**
+  - ASP.NET Core Web API example
+  - Console app with Generic Host example
+  - Named clients example
+  - Typed clients example
+  
+- [ ] **Update ARCHITECTURE.md**
+  - Document DI integration design
+  - Explain singleton vs transient choices
+  - Document named clients implementation
+
+#### Phase 8: NuGet Package
+- [ ] **Prepare NuGet package metadata**
+  - Package ID: ResilientHttpClient.Extensions.DependencyInjection
+  - Description: Microsoft DI integration for ResilientHttpClient
+  - Tags: httpclient, dependency-injection, di, aspnetcore, resilience
+  - Add package icon
+  
+- [ ] **Create .nuspec or update .csproj**
+  - Add package dependencies
+  - Set version to match core library
+  - Add README.md to package
+
+### Design Decisions
+
+**Q: Singleton or Scoped?**
+**A:** Singleton by default (matches HttpClient best practices), but allow configuration:
+```csharp
+services.AddResilientHttpClient(opt => { }, lifetime: ServiceLifetime.Scoped);
+```
+
+**Q: New package or add to Core?**
+**A:** New package - keeps core lightweight and Unity-compatible. Users who don't need DI won't have extra dependencies.
+
+**Q: Support IHttpClientFactory pattern exactly?**
+**A:** Similar but adapted. IHttpClientFactory manages lifecycle and handlers differently. We'll provide a familiar API but document differences.
+
+### Success Criteria
+- [ ] ASP.NET Core users can add ResilientHttpClient with 1-2 lines of code
+- [ ] Supports configuration from appsettings.json
+- [ ] Named clients work as expected
+- [ ] 90%+ test coverage on DI package
+- [ ] Documentation includes real-world examples
+- [ ] Published to NuGet
+
+### Estimated Effort
+- **Phase 1-2:** 2-3 hours (basic implementation)
+- **Phase 3-4:** 3-4 hours (named clients + options)
+- **Phase 5:** 2-3 hours (advanced features - optional for v1.0)
+- **Phase 6-7:** 3-4 hours (testing + docs)
+- **Phase 8:** 1-2 hours (packaging)
+
+**Total: ~11-16 hours for full implementation**
+
+---
+
+## Progress Tracking - Epic 2.5
+- [x] Project created and dependencies added ✅
+- [x] Basic extension methods implemented ✅
+- [x] Named clients support added ✅
+- [x] Tests written (25 tests, all passing!) ✅
+- [x] Documentation updated (README.md) ✅
+- [x] **Phase 1-3, 6-7 COMPLETE** ✅
+- [ ] Options pattern integrated (basic support done, appsettings.json binding next)
+- [ ] Advanced features completed (optional)
+- [ ] Samples project created (optional)
+- [ ] NuGet package published
+
+### Current Test Summary
+- **137 total tests passing** (112 core + 25 DI)
+- Service registration tests: 16 tests ✅
+- Named client tests: 9 tests ✅
+- Validation tests: All edge cases covered ✅
+
+---
+
 ## Epic 1.9: Maximum Coverage Achievement - 95%+ 🏆
 
 ### ✅ ACHIEVED: 95.2% line, 88.97% branch
