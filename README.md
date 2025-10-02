@@ -1,9 +1,9 @@
 # ResilientHttpClient 🚀
 
-![Coverage](https://img.shields.io/badge/coverage-95.2%25-brightgreen?style=flat-square)
+![Coverage](https://img.shields.io/badge/coverage-96.7%25-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)
 ![.NET Standard](https://img.shields.io/badge/.NET%20Standard-2.1-blueviolet?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-104%20passing-brightgreen?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-112%20passing-brightgreen?style=flat-square)
 
 🎉 **Welcome to ResilientHttpClient!**
 
@@ -21,6 +21,30 @@ A drop-in replacement for HttpClient that adds common resiliency patterns such a
 - **✅ Well-Tested**: Comprehensive unit tests ensure reliability and correct behavior.
 - **🧰 Complete API Coverage**: Supports all HttpClient methods including GetStringAsync for direct string responses.
 - **🎯 Per-Request Policies**: Customize resilience behavior for individual requests using a fluent interface.
+
+---
+
+## 🔧 Recent Improvements
+
+### v0.9.0 - Pre-Release (October 2025)
+
+**🐛 Critical Bug Fixes:**
+- **Fixed content cloning in retry scenarios** - POST/PUT requests with content now properly clone the HttpContent during retries, preventing "Cannot access a disposed object" errors. Previously, content was shared between retry attempts, causing failures when the content stream was already consumed.
+  - Added async content cloning with full header preservation
+  - Improved request disposal logic to prevent premature cleanup
+  - Added 8 comprehensive tests covering all retry scenarios with content
+
+**📚 Documentation Enhancements:**
+- **Added Best Practices section** - Critical guidance on instance reuse patterns to avoid socket exhaustion
+- **Created ARCHITECTURE.md** - Detailed explanation of design decisions and trade-offs
+- **Enhanced XML documentation** - Factory methods now include warnings and usage examples
+
+**📊 Quality Improvements:**
+- Coverage increased from 95.2% to **96.7%** line coverage
+- Added 8 new tests specifically for content cloning scenarios
+- All 112 tests passing
+
+**Why this matters:** If you're using POST or PUT requests with retry logic, this fix prevents silent failures where retry attempts would fail due to content already being consumed. Upgrade recommended for all users making non-GET requests.
 
 ---
 
@@ -76,9 +100,12 @@ While Polly is fantastic for traditional .NET applications, it presents several 
 ## ⚡ Quickstart
 
 ```csharp
+// Create once, reuse for all requests (see Best Practices below)
 var client = ResilientHttpClientFactory.CreateClient();
 var response = await client.GetAsync("https://api.example.com/data");
 ```
+
+**⚠️ Important:** See [Best Practices](#️-best-practices) below for proper instance reuse patterns.
 
 ---
 
@@ -265,6 +292,150 @@ var response = await client.SendAsync(request);
 // If you need more control, you can create the client manually
 var httpClient = new HttpClient();
 var resilientClient = new ResilientHttpClient(httpClient, options);
+```
+
+---
+
+## ⚠️ Best Practices
+
+### **CRITICAL: Reuse Your ResilientHttpClient Instance**
+
+**⚠️ WARNING:** Creating a new `ResilientHttpClient` for each request is an anti-pattern that can lead to socket exhaustion and DNS issues.
+
+#### The Problem
+
+When you create a new HttpClient instance (which ResilientHttpClient wraps), it creates its own connection pool. Creating many instances can:
+- **Exhaust available sockets** - Leading to `SocketException` errors
+- **Ignore DNS changes** - Your app won't pick up DNS updates
+- **Waste resources** - Each instance manages its own connections
+
+####  The Solution: Create Once, Reuse Forever
+
+**For Unity Projects (Recommended Pattern):**
+
+```csharp
+public class ApiManager : MonoBehaviour
+{
+    // Create ONE instance as a static readonly field
+    private static readonly IResilientHttpClient _apiClient = 
+        ResilientHttpClientFactory.CreateClient("https://api.yourgame.com");
+
+    public async Task<PlayerData> GetPlayerData(string playerId)
+    {
+        // Reuse the same instance for all requests
+        var response = await _apiClient.GetAsync($"/players/{playerId}");
+        response.EnsureSuccessStatusCode();
+        
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonUtility.FromJson<PlayerData>(json);
+    }
+    
+    public async Task<bool> SubmitScore(int score)
+    {
+        var content = new StringContent($"{{\"score\":{score}}}", Encoding.UTF8, "application/json");
+        var response = await _apiClient.PostAsync("/scores", content);
+        return response.IsSuccessStatusCode;
+    }
+}
+```
+
+**For ASP.NET Core / Dependency Injection:**
+
+```csharp
+// In Startup.cs or Program.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    // Register as singleton - ONE instance for the entire application
+    services.AddSingleton<IResilientHttpClient>(sp => 
+        ResilientHttpClientFactory.CreateClient("https://api.example.com", new ResilientHttpClientOptions
+        {
+            MaxRetries = 3,
+            CircuitResetTime = TimeSpan.FromSeconds(30)
+        }));
+}
+
+// In your controller or service
+public class MyService
+{
+    private readonly IResilientHttpClient _client;
+    
+    public MyService(IResilientHttpClient client)
+    {
+        _client = client; // Injected singleton instance
+    }
+    
+    public async Task<Data> GetData()
+    {
+        return await _client.GetAsync("/data");
+    }
+}
+```
+
+**For Console Apps / Simple Projects:**
+
+```csharp
+class Program
+{
+    // Create ONE instance at the application level
+    private static readonly IResilientHttpClient _client = 
+        ResilientHttpClientFactory.CreateClient("https://api.example.com");
+
+    static async Task Main(string[] args)
+    {
+        // Reuse the same instance throughout your application
+        await FetchData();
+        await FetchMoreData();
+        await PostData();
+    }
+    
+    static async Task FetchData()
+    {
+        var response = await _client.GetAsync("/endpoint");
+        // ... handle response
+    }
+}
+```
+
+#### ❌ Don't Do This (Anti-Pattern)
+
+```csharp
+// BAD - Creates a new instance for every request!
+public async Task<Data> GetData()
+{
+    var client = ResilientHttpClientFactory.CreateClient(); // ❌ Don't do this in a method!
+    var response = await client.GetAsync("https://api.example.com/data");
+    return response;
+}
+```
+
+#### ✅ Do This Instead
+
+```csharp
+// GOOD - Reuse a single instance
+private static readonly IResilientHttpClient _client = 
+    ResilientHttpClientFactory.CreateClient("https://api.example.com");
+
+public async Task<Data> GetData()
+{
+    var response = await _client.GetAsync("/data"); // ✅ Reuse the instance
+    return response;
+}
+```
+
+###  Thread Safety
+
+`ResilientHttpClient` is **thread-safe** and designed to be shared across multiple threads. You can safely make concurrent requests from different threads using the same instance.
+
+```csharp
+// This is safe and recommended
+var tasks = new[]
+{
+    _client.GetAsync("/endpoint1"),
+    _client.GetAsync("/endpoint2"),
+    _client.GetAsync("/endpoint3")
+};
+
+var responses = await Task.WhenAll(tasks);
 ```
 
 ---

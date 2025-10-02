@@ -114,14 +114,15 @@ namespace ResilientHttpClient.Core
 
             // Implement retry logic
             int retryCount = 0;
+            HttpRequestMessage requestToSend = null;
             while (true)
             {
                 try
                 {
                     // Clone the request for each retry since it can't be reused
-                    var requestClone = retryCount > 0 ? CloneHttpRequestMessage(request) : request;
+                    requestToSend = retryCount > 0 ? await CloneHttpRequestMessageAsync(request).ConfigureAwait(false) : request;
                     
-                    var response = await _httpClient.SendAsync(requestClone, cancellationToken).ConfigureAwait(false);
+                    var response = await _httpClient.SendAsync(requestToSend, cancellationToken).ConfigureAwait(false);
                     
                     // If successful, reset failure count
                     if (response.IsSuccessStatusCode)
@@ -136,6 +137,11 @@ namespace ResilientHttpClient.Core
                         if (retryCount < maxRetries)
                         {
                             retryCount++;
+                            // Dispose the cloned request before retrying
+                            if (requestToSend != request)
+                            {
+                                requestToSend?.Dispose();
+                            }
                             await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                             continue;
                         }
@@ -152,6 +158,11 @@ namespace ResilientHttpClient.Core
                     if (retryCount < maxRetries)
                     {
                         retryCount++;
+                        // Dispose the cloned request before retrying
+                        if (requestToSend != request)
+                        {
+                            requestToSend?.Dispose();
+                        }
                         await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                         continue;
                     }
@@ -166,6 +177,11 @@ namespace ResilientHttpClient.Core
                     if (retryCount < maxRetries)
                     {
                         retryCount++;
+                        // Dispose the cloned request before retrying
+                        if (requestToSend != request)
+                        {
+                            requestToSend?.Dispose();
+                        }
                         await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                         continue;
                     }
@@ -213,14 +229,15 @@ namespace ResilientHttpClient.Core
 
             // Implement retry logic
             int retryCount = 0;
+            HttpRequestMessage requestToSend = null;
             while (true)
             {
                 try
                 {
                     // Clone the request for each retry since it can't be reused
-                    var requestClone = retryCount > 0 ? CloneHttpRequestMessage(request) : request;
+                    requestToSend = retryCount > 0 ? await CloneHttpRequestMessageAsync(request).ConfigureAwait(false) : request;
                     
-                    var response = await _httpClient.SendAsync(requestClone, completionOption, cancellationToken).ConfigureAwait(false);
+                    var response = await _httpClient.SendAsync(requestToSend, completionOption, cancellationToken).ConfigureAwait(false);
                     
                     // If successful, reset failure count
                     if (response.IsSuccessStatusCode)
@@ -235,6 +252,11 @@ namespace ResilientHttpClient.Core
                         if (retryCount < maxRetries)
                         {
                             retryCount++;
+                            // Dispose the cloned request before retrying
+                            if (requestToSend != request)
+                            {
+                                requestToSend?.Dispose();
+                            }
                             await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                             continue;
                         }
@@ -251,6 +273,11 @@ namespace ResilientHttpClient.Core
                     if (retryCount < maxRetries)
                     {
                         retryCount++;
+                        // Dispose the cloned request before retrying
+                        if (requestToSend != request)
+                        {
+                            requestToSend?.Dispose();
+                        }
                         await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                         continue;
                     }
@@ -265,6 +292,11 @@ namespace ResilientHttpClient.Core
                     if (retryCount < maxRetries)
                     {
                         retryCount++;
+                        // Dispose the cloned request before retrying
+                        if (requestToSend != request)
+                        {
+                            requestToSend?.Dispose();
+                        }
                         await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
                         continue;
                     }
@@ -300,7 +332,7 @@ namespace ResilientHttpClient.Core
             if (requestUri == null)
                 throw new ArgumentNullException(nameof(requestUri));
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             return SendAsync(request, cancellationToken);
         }
 
@@ -328,7 +360,7 @@ namespace ResilientHttpClient.Core
             if (requestUri == null)
                 throw new ArgumentNullException(nameof(requestUri));
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             return SendAsync(request, completionOption, cancellationToken);
         }
 
@@ -358,7 +390,7 @@ namespace ResilientHttpClient.Core
             if (content == null)
                 throw new ArgumentNullException(nameof(content));
 
-            using var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content };
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content };
             return SendAsync(request, cancellationToken);
         }
 
@@ -388,7 +420,7 @@ namespace ResilientHttpClient.Core
             if (content == null)
                 throw new ArgumentNullException(nameof(content));
 
-            using var request = new HttpRequestMessage(HttpMethod.Put, requestUri) { Content = content };
+            var request = new HttpRequestMessage(HttpMethod.Put, requestUri) { Content = content };
             return SendAsync(request, cancellationToken);
         }
 
@@ -416,7 +448,7 @@ namespace ResilientHttpClient.Core
             if (requestUri == null)
                 throw new ArgumentNullException(nameof(requestUri));
 
-            using var request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
+            var request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
             return SendAsync(request, cancellationToken);
         }
 
@@ -434,23 +466,39 @@ namespace ResilientHttpClient.Core
         }
 
         /// <summary>
-        /// Clones an HttpRequestMessage since they can't be reused for multiple requests.
+        /// Clones an HttpRequestMessage so it can be resent.
+        /// This is necessary for retries since HttpContent can only be read once.
         /// </summary>
         /// <param name="request">The request to clone.</param>
         /// <returns>A new HttpRequestMessage with the same properties.</returns>
-        private static HttpRequestMessage CloneHttpRequestMessage(HttpRequestMessage request)
+        private static async Task<HttpRequestMessage> CloneHttpRequestMessageAsync(HttpRequestMessage request)
         {
             var clone = new HttpRequestMessage(request.Method, request.RequestUri)
             {
-                Content = request.Content,
                 Version = request.Version
             };
 
+            // Clone the content if present
+            if (request.Content != null)
+            {
+                // Read content into memory so it can be reused
+                var contentBytes = await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                clone.Content = new ByteArrayContent(contentBytes);
+
+                // Copy all content headers
+                foreach (var header in request.Content.Headers)
+                {
+                    clone.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                }
+            }
+
+            // Copy request headers
             foreach (var header in request.Headers)
             {
                 clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
 
+            // Copy properties (used for per-request policies)
             foreach (var property in request.Properties)
             {
                 clone.Properties.Add(property);
@@ -462,7 +510,6 @@ namespace ResilientHttpClient.Core
         /// <summary>
         /// Determines if the status code represents a transient error that should be retried.
         /// </summary>
-        /// <param name="statusCode">The HTTP status code.</param>
         /// <returns>True if the status code represents a transient error; otherwise, false.</returns>
         private static bool IsTransientError(HttpStatusCode statusCode)
         {
