@@ -5,15 +5,17 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageId>ResilientHttpClient.Extensions.DependencyInjection</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
-    <Authors>CaptiveReality</Authors>
-    <Company>CaptiveReality</Company>
+    <Authors>Mark Castle</Authors>
+    <Company>Captive Reality Ltd</Company>
     <Product>ResilientHttpClient</Product>
     <Description>Microsoft Dependency Injection extensions for ResilientHttpClient. Provides seamless integration with ASP.NET Core and .NET applications with support for named clients, configuration options, and multiple service lifetimes. Compatible with .NET Standard 2.1.</Description>
     <PackageTags>http;client;resilient;dependency-injection;di;aspnetcore;circuit-breaker;retry;named-clients;iservicecollection</PackageTags>
-    <PackageProjectUrl>https://github.com/CaptiveReality/ResilientHttpClient</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/CaptiveReality/ResilientHttpClient</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/markcastle/ResilientHttpClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/markcastle/ResilientHttpClient</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>

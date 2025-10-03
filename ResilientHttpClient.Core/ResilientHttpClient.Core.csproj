@@ -5,15 +5,17 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageId>ResilientHttpClient.Core</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
-    <Authors>CaptiveReality</Authors>
-    <Company>CaptiveReality</Company>
+    <Authors>Mark Castle</Authors>
+    <Company>Captive Reality Ltd</Company>
     <Product>ResilientHttpClient</Product>
     <Description>A drop-in replacement for HttpClient that adds common resiliency patterns such as circuit breaker, retry, and timeout. Compatible with .NET Standard 2.1 and Unity projects. Features: Circuit Breaker Pattern, Automatic Retry Logic, Timeout Handling, Per-Request Policies, Content Cloning for Retries, No External Dependencies, Well-Tested (96.7% coverage with 112 tests).</Description>
     <PackageTags>http;client;resilient;circuit-breaker;retry;timeout;unity;netstandard;httpclient;resilience;polly-alternative</PackageTags>
-    <PackageProjectUrl>https://github.com/CaptiveReality/ResilientHttpClient</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/CaptiveReality/ResilientHttpClient</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/markcastle/ResilientHttpClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/markcastle/ResilientHttpClient</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
