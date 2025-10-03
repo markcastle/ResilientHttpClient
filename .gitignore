@@ -72,6 +72,9 @@ _ReSharper*/
 *.csproj
 !ResilientHttpClient.Core/*.csproj
 !ResilientHttpClient.Tests/*.csproj
+!ResilientHttpClient.Demo/*.csproj
+!ResilientHttpClient.Extensions.DependencyInjection/*.csproj
+!ResilientHttpClient.Extensions.DependencyInjection.Tests/*.csproj
 *.unityproj
 *.booproj
 *.pidb

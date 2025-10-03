@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>ResilientHttpClient.Extensions.DependencyInjection</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>CaptiveReality</Authors>
+    <Company>CaptiveReality</Company>
+    <Product>ResilientHttpClient</Product>
+    <Description>Microsoft Dependency Injection extensions for ResilientHttpClient. Provides seamless integration with ASP.NET Core and .NET applications with support for named clients, configuration options, and multiple service lifetimes. Compatible with .NET Standard 2.1.</Description>
+    <PackageTags>http;client;resilient;dependency-injection;di;aspnetcore;circuit-breaker;retry;named-clients;iservicecollection</PackageTags>
+    <PackageProjectUrl>https://github.com/CaptiveReality/ResilientHttpClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CaptiveReality/ResilientHttpClient</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>v1.0.0: Initial release of DI extensions
+- Simple registration with AddResilientHttpClient()
+- Named clients support with IResilientHttpClientFactory
+- Configurable service lifetimes (Singleton/Scoped/Transient)
+- Full integration with Microsoft.Extensions.DependencyInjection
+- 25 comprehensive tests ensuring reliability</PackageReleaseNotes>
+    <Copyright>Copyright (c) 2025 CaptiveReality</Copyright>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ResilientHttpClient.Core\ResilientHttpClient.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.0" />
+  </ItemGroup>
+
+</Project>
