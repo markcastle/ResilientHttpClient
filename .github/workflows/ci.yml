@@ -78,10 +78,10 @@ jobs:
       run: dotnet build --configuration Release --no-restore
       
     - name: Pack Core NuGet package
-      run: dotnet pack ResilientHttpClient.Core/ResilientHttpClient.Core.csproj --configuration Release --no-build --output ./artifacts
+      run: dotnet pack ResilientHttpClient.Core/ResilientHttpClient.Core.csproj --configuration Release --output ./artifacts
       
     - name: Pack DI Extension NuGet package
-      run: dotnet pack ResilientHttpClient.Extensions.DependencyInjection/ResilientHttpClient.Extensions.DependencyInjection.csproj --configuration Release --no-build --output ./artifacts
+      run: dotnet pack ResilientHttpClient.Extensions.DependencyInjection/ResilientHttpClient.Extensions.DependencyInjection.csproj --configuration Release --output ./artifacts
       
     - name: Push to NuGet
       run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
