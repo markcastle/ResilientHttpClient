@@ -66,4 +66,4 @@ This is the first production-ready release of ResilientHttpClient, a drop-in rep
 
 ---
 
-[1.0.0]: https://github.com/CaptiveReality/ResilientHttpClient/releases/tag/v1.0.0
+[1.0.0]: https://github.com/markcastle/ResilientHttpClient/releases/tag/v1.0.0

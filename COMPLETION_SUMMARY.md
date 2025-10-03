@@ -262,7 +262,7 @@ This project demonstrates best practices for:
 ## 📞 Support
 
 For questions or issues:
-- **GitHub Issues**: [Create an issue](https://github.com/CaptiveReality/ResilientHttpClient/issues)
+- **GitHub Issues**: [Create an issue](https://github.com/markcastle/ResilientHttpClient/issues)
 - **Documentation**: See README.md and DEPLOYMENT.md
 - **Examples**: See test files for comprehensive usage examples
 

@@ -25,7 +25,7 @@
 - Configurable service lifetimes (Singleton/Scoped/Transient)
 - Full integration with Microsoft.Extensions.DependencyInjection
 - 25 comprehensive tests ensuring reliability</PackageReleaseNotes>
-    <Copyright>Copyright (c) 2025 CaptiveReality</Copyright>
+    <Copyright>Copyright (c) 2025 Mark Castle</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
