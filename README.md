@@ -3,7 +3,8 @@
 ![Coverage](https://img.shields.io/badge/coverage-96.7%25-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)
 ![.NET Standard](https://img.shields.io/badge/.NET%20Standard-2.1-blueviolet?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-112%20passing-brightgreen?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-137%20passing-brightgreen?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
 
 🎉 **Welcome to ResilientHttpClient!**
 

@@ -75,8 +75,11 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
       
-    - name: Pack NuGet package
+    - name: Pack Core NuGet package
       run: dotnet pack ResilientHttpClient.Core/ResilientHttpClient.Core.csproj --configuration Release --no-build --output ./artifacts
+      
+    - name: Pack DI Extension NuGet package
+      run: dotnet pack ResilientHttpClient.Extensions.DependencyInjection/ResilientHttpClient.Extensions.DependencyInjection.csproj --configuration Release --no-build --output ./artifacts
       
     - name: Push to NuGet (when tagged)
       if: startsWith(github.ref, 'refs/tags/v')

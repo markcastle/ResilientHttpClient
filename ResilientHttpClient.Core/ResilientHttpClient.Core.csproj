@@ -10,14 +10,20 @@
     <Authors>CaptiveReality</Authors>
     <Company>CaptiveReality</Company>
     <Product>ResilientHttpClient</Product>
-    <Description>A drop-in replacement for HttpClient that adds common resiliency patterns such as circuit breaker, retry, and timeout. Compatible with .NET Standard 2.1 and Unity projects. Features: Circuit Breaker Pattern, Automatic Retry Logic, Timeout Handling, Per-Request Policies, No External Dependencies, Well-Tested (82%+ coverage).</Description>
+    <Description>A drop-in replacement for HttpClient that adds common resiliency patterns such as circuit breaker, retry, and timeout. Compatible with .NET Standard 2.1 and Unity projects. Features: Circuit Breaker Pattern, Automatic Retry Logic, Timeout Handling, Per-Request Policies, Content Cloning for Retries, No External Dependencies, Well-Tested (96.7% coverage with 112 tests).</Description>
     <PackageTags>http;client;resilient;circuit-breaker;retry;timeout;unity;netstandard;httpclient;resilience;polly-alternative</PackageTags>
     <PackageProjectUrl>https://github.com/CaptiveReality/ResilientHttpClient</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CaptiveReality/ResilientHttpClient</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>Initial release with circuit breaker, retry, and timeout patterns. Fully compatible with Unity and .NET Standard 2.1.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.0.0: Production-ready release
+- Fixed critical content cloning bug for POST/PUT retries
+- 96.7% code coverage with 112 comprehensive tests
+- Extensive documentation with best practices and architecture decisions
+- Thread-safe implementation suitable for concurrent use
+- Per-request policy customization support
+- Optional DI extension package available for ASP.NET Core</PackageReleaseNotes>
     <Copyright>Copyright (c) 2025 CaptiveReality</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

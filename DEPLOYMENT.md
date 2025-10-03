@@ -42,27 +42,56 @@ If you prefer manual deployment:
 # 1. Build the project
 dotnet build --configuration Release
 
-# 2. Pack the NuGet package
-dotnet pack ResilientHttpClient.Core/ResilientHttpClient.Core.csproj --configuration Release --output ./artifacts
+# 2. Run all tests to ensure quality
+dotnet test --configuration Release --no-build
 
-# 3. Push to NuGet
-dotnet nuget push ./artifacts/*.nupkg --api-key YOUR_API_KEY --source https://api.nuget.org/v3/index.json
+# 3. Pack both NuGet packages
+dotnet pack --configuration Release --no-build --output ./artifacts
+
+# This creates:
+# - ResilientHttpClient.Core.1.0.0.nupkg
+# - ResilientHttpClient.Extensions.DependencyInjection.1.0.0.nupkg
+
+# 4. Push both packages to NuGet
+dotnet nuget push ./artifacts/*.nupkg --api-key YOUR_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+```
+
+### Publishing Individual Packages
+
+If you need to publish packages separately:
+
+```bash
+# Core library only
+dotnet nuget push ./artifacts/ResilientHttpClient.Core.*.nupkg --api-key YOUR_API_KEY --source https://api.nuget.org/v3/index.json
+
+# DI Extension only
+dotnet nuget push ./artifacts/ResilientHttpClient.Extensions.DependencyInjection.*.nupkg --api-key YOUR_API_KEY --source https://api.nuget.org/v3/index.json
 ```
 
 ---
 
 ## Versioning
 
-Update the version in `ResilientHttpClient.Core/ResilientHttpClient.Core.csproj`:
+Update the version in both project files:
 
+**ResilientHttpClient.Core/ResilientHttpClient.Core.csproj:**
 ```xml
 <PackageVersion>1.0.0</PackageVersion>
 ```
+
+**ResilientHttpClient.Extensions.DependencyInjection/ResilientHttpClient.Extensions.DependencyInjection.csproj:**
+```xml
+<PackageVersion>1.0.0</PackageVersion>
+```
+
+**Best Practice:** Keep both packages at the same version to avoid confusion.
 
 Follow [Semantic Versioning](https://semver.org/):
 - **Major**: Breaking changes (e.g., 2.0.0)
 - **Minor**: New features, backward compatible (e.g., 1.1.0)
 - **Patch**: Bug fixes (e.g., 1.0.1)
+
+Update `CHANGELOG.md` with release notes for each version.
 
 ---
 

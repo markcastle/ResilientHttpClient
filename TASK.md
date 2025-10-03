@@ -492,13 +492,91 @@ services.AddResilientHttpClient(opt => { }, lifetime: ServiceLifetime.Scoped);
 - [ ] Options pattern integrated (basic support done, appsettings.json binding next)
 - [ ] Advanced features completed (optional)
 - [ ] Samples project created (optional)
-- [ ] NuGet package published
+- [x] NuGet package metadata complete ✅
 
 ### Current Test Summary
 - **137 total tests passing** (112 core + 25 DI)
 - Service registration tests: 16 tests ✅
 - Named client tests: 9 tests ✅
 - Validation tests: All edge cases covered ✅
+
+---
+
+## Epic 3: v1.0 Release Preparation 🚀
+
+**Goal**: Prepare and publish v1.0.0 to NuGet with both Core and DI packages.
+
+### Package Preparation
+- [x] **Add NuGet metadata to DI package** ✅
+  - [x] PackageId, Version (1.0.0), Description
+  - [x] Authors, Tags, License
+  - [x] Release notes
+  - [x] README reference
+  - [x] XML documentation generation
+
+- [x] **Update Core package metadata** ✅
+  - [x] Updated description (96.7% coverage, 112 tests)
+  - [x] Updated release notes for v1.0.0
+  - [x] Added content cloning bug fix details
+  - [x] Mentioned DI extension package
+
+### Documentation
+- [x] **Update README badges** ✅
+  - [x] Coverage: 96.7%
+  - [x] Tests: 137 passing
+  - [x] Version: 1.0.0
+
+- [x] **Create CHANGELOG.md** ✅
+  - [x] v1.0.0 release notes
+  - [x] Feature list for both packages
+  - [x] Bug fixes documented
+  - [x] Planned features for v1.1
+
+- [x] **Update DEPLOYMENT.md** ✅
+  - [x] Instructions for both packages
+  - [x] Individual package publishing
+  - [x] Versioning best practices
+
+### CI/CD
+- [x] **Update GitHub Actions workflow** ✅
+  - [x] Pack Core NuGet package
+  - [x] Pack DI Extension package
+  - [x] Push both to NuGet on tag
+
+### Testing & Validation
+- [x] **Build packages locally** ✅
+  - [x] `dotnet build --configuration Release`
+  - [x] `dotnet test --configuration Release`
+  - [x] `dotnet pack --configuration Release`
+  - [x] Verified both .nupkg files created
+
+### Release Checklist
+- [x] All 137 tests passing ✅
+- [x] 96.7% code coverage maintained ✅
+- [x] Both packages build successfully ✅
+- [x] Documentation complete ✅
+- [x] CI/CD configured ✅
+- [ ] **Ready to tag and publish!** 🎯
+
+### To Publish v1.0.0:
+```bash
+# 1. Commit all changes
+git add .
+git commit -m "Release v1.0.0"
+
+# 2. Create and push tag
+git tag v1.0.0
+git push origin main
+git push origin v1.0.0
+
+# 3. GitHub Actions will automatically publish to NuGet
+```
+
+### Success Criteria
+- ✅ Both packages available on NuGet.org
+- ✅ README shows correct version and badges
+- ✅ CHANGELOG.md tracks version history
+- ✅ All documentation up to date
 
 ---
 
