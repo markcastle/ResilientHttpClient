@@ -57,55 +57,6 @@ A drop-in replacement for HttpClient that adds common resiliency patterns such a
 
 ---
 
-## 🤔 Why Not Polly?
-
-[Polly](https://github.com/App-vNext/Polly) is an excellent and mature resilience library for .NET, and it's the go-to choice for most .NET applications. **So why did I build this?**
-
-### Unity Compatibility is Hard
-
-While Polly is fantastic for traditional .NET applications, it presents several challenges for **Unity developers**:
-
-1. **Dependency Hell** 🔗
-   - Polly requires multiple external dependencies (especially for newer versions)
-   - Unity's package management can struggle with complex dependency trees
-   - Version conflicts between Polly's dependencies and Unity's built-in libraries are common
-
-2. **Targeting Issues** 🎯
-   - Polly v8 targets .NET Standard 2.0, .NET Framework 4.6.2+, and .NET 6+
-   - While compatible, the multiple dependencies can cause conflicts in Unity's environment
-   - IL2CPP compilation in Unity may have issues with complex dependency chains
-
-3. **Complexity Overhead** 📚
-   - Polly is incredibly powerful but comes with a learning curve
-   - For basic retry + circuit breaker patterns, it can feel like overkill
-   - Game developers often just need simple, reliable HTTP resilience without the enterprise feature set
-
-4. **Size Matters** 📦
-   - Mobile games need to minimize app size
-   - Polly + dependencies add significant bloat
-   - This library is a single DLL with **zero external dependencies**
-
-### When to Use Each
-
-**Use Polly when:**
-- Building ASP.NET Core, console apps, or traditional .NET services
-- You need advanced features (bulkhead isolation, hedging, reactive policies)
-- You're working in an environment with good dependency management
-- You want the most battle-tested, community-supported solution
-
-**Use ResilientHttpClient when:**
-- Building Unity games (mobile, desktop, or WebGL)
-- You need simple retry + circuit breaker patterns that "just work"
-- You want zero dependencies and minimal footprint
-- You want to avoid NuGet dependency conflicts in Unity
-- You value simplicity and ease of integration over advanced features
-
-### The Bottom Line
-
-**Polly is the better choice for most .NET applications.** But if you're building a Unity game and you've ever wrestled with NuGet packages, dependency conflicts, or IL2CPP build errors, this library was built for you. It's focused, lightweight, and designed to work seamlessly in Unity's ecosystem.
-
----
-
 ## ⚡ Quickstart
 
 ```csharp
@@ -702,9 +653,58 @@ The tests cover:
 
 ---
 
+## 🤔 Why Not Polly?
+
+[Polly](https://github.com/App-vNext/Polly) is an excellent and mature resilience library for .NET, and it's the go-to choice for most .NET applications. **So why did I build this?**
+
+### Unity Compatibility is Hard
+
+While Polly is fantastic for traditional .NET applications, it presents several challenges for **Unity developers**:
+
+1. **Dependency Hell** 🔗
+   - Polly requires multiple external dependencies (especially for newer versions)
+   - Unity's package management can struggle with complex dependency trees
+   - Version conflicts between Polly's dependencies and Unity's built-in libraries are common
+
+2. **Targeting Issues** 🎯
+   - Polly v8 targets .NET Standard 2.0, .NET Framework 4.6.2+, and .NET 6+
+   - While compatible, the multiple dependencies can cause conflicts in Unity's environment
+   - IL2CPP compilation in Unity may have issues with complex dependency chains
+
+3. **Complexity Overhead** 📚
+   - Polly is incredibly powerful but comes with a learning curve
+   - For basic retry + circuit breaker patterns, it can feel like overkill
+   - Game developers often just need simple, reliable HTTP resilience without the enterprise feature set
+
+4. **Size Matters** 📦
+   - Mobile games need to minimize app size
+   - Polly + dependencies add significant bloat
+   - This library is a single DLL with **zero external dependencies**
+
+### When to Use Each
+
+**Use Polly when:**
+- Building ASP.NET Core, console apps, or traditional .NET services
+- You need advanced features (bulkhead isolation, hedging, reactive policies)
+- You're working in an environment with good dependency management
+- You want the most battle-tested, community-supported solution
+
+**Use ResilientHttpClient when:**
+- Building Unity games (mobile, desktop, or WebGL)
+- You need simple retry + circuit breaker patterns that "just work"
+- You want zero dependencies and minimal footprint
+- You want to avoid NuGet dependency conflicts in Unity
+- You value simplicity and ease of integration over advanced features
+
+### The Bottom Line
+
+**Polly is the better choice for most .NET applications.** But if you're building a Unity game and you've ever wrestled with NuGet packages, dependency conflicts, or IL2CPP build errors, this library was built for you. It's focused, lightweight, and designed to work seamlessly in Unity's ecosystem.
+
+---
+
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome! Feel free to check [issues page](../../issues) or submit a pull request. Let’s make .NET HTTP resilient for everyone! 💪
+Contributions, issues and feature requests are welcome! Feel free to check [issues page](../../issues) or submit a pull request. Let's make .NET HTTP resilient for everyone! 💪
 
 ---
 
