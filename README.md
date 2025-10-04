@@ -117,6 +117,12 @@ dotnet add package ResilientHttpClient.Extensions.DependencyInjection
 1. Place the `ResilientHttpClient.Core.dll` in your `Assets/Plugins` folder.
 2. No additional dependencies are required.
 
+**📖 Unity Developers:** See the comprehensive [Unity Integration Guide](UNITY_GUIDE.md) for:
+- Proper singleton patterns to avoid socket exhaustion
+- Platform-specific considerations (iOS, Android, WebGL)
+- Common scenarios and anti-patterns to avoid
+- Testing and troubleshooting tips
+
 ---
 
 ## 🛠️ Building from Source
@@ -735,6 +741,8 @@ While Polly is fantastic for traditional .NET applications, it presents several 
 ### The Bottom Line
 
 **Polly is the better choice for most .NET applications.** But if you're building a Unity game and you've ever wrestled with NuGet packages, dependency conflicts, or IL2CPP build errors, this library was built for you. It's focused, lightweight, and designed to work seamlessly in Unity's ecosystem.
+
+**🎮 Unity Developers:** Check out the [Unity Integration Guide](UNITY_GUIDE.md) for detailed patterns, examples, and best practices specifically for Unity projects.
 
 ---
 

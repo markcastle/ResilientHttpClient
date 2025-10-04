@@ -621,6 +621,43 @@ git push origin v1.0.0
 
 ---
 
+## Epic 4: Unity-Specific Documentation 🎮
+
+**Goal**: Create comprehensive Unity integration documentation to help developers properly use ResilientHttpClient in Unity projects.
+
+### Documentation Tasks
+- [x] **Create UNITY_GUIDE.md** ✅
+  - [x] Explanation of socket exhaustion in Unity
+  - [x] Singleton Manager pattern with code example
+  - [x] Static Service Locator pattern
+  - [x] ScriptableObject Configuration pattern
+  - [x] Common scenarios (multiple APIs, parallel requests, WebGL)
+  - [x] Anti-patterns to avoid section
+  - [x] Platform-specific considerations (iOS, Android, WebGL)
+  - [x] Testing and troubleshooting guidance
+  - [x] Three golden rules summary
+  
+- [x] **Update README.md** ✅
+  - [x] Link to Unity guide in Installation section
+  - [x] Link to Unity guide in "Why Not Polly?" section
+  - [x] Added prominent callout for Unity developers
+
+### Documentation Improvements
+- [x] 3 complete code patterns with real examples ✅
+- [x] Platform-specific guidance for iOS/Android/WebGL ✅
+- [x] Anti-pattern examples with explanations ✅
+- [x] Testing and debugging tips ✅
+- [x] Comprehensive troubleshooting section ✅
+
+### Success Criteria
+- ✅ Unity developers can find proper singleton patterns easily
+- ✅ Socket exhaustion prevention is clearly explained
+- ✅ Real-world code examples for different Unity patterns
+- ✅ Platform-specific issues documented
+- ✅ Common mistakes highlighted with fixes
+
+---
+
 **Instructions:**
 - Use checkboxes to track progress.
 - Update this file as you add tests and improve coverage.
