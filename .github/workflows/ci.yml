@@ -92,4 +92,20 @@ jobs:
       shell: bash
       
     - name: Push to NuGet
-      run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: |
+        Write-Host "Looking for .nupkg files in artifacts directory..."
+        $packages = Get-ChildItem -Path ./artifacts -Filter *.nupkg
+        Write-Host "Found $($packages.Count) package(s) to push:"
+        foreach ($package in $packages) {
+          Write-Host "  - $($package.Name)"
+        }
+        foreach ($package in $packages) {
+          Write-Host "`nPushing $($package.Name)..."
+          dotnet nuget push $package.FullName --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to push $($package.Name)"
+            exit 1
+          }
+          Write-Host "Successfully pushed $($package.Name)" -ForegroundColor Green
+        }
+      shell: pwsh
