@@ -26,6 +26,32 @@ A drop-in replacement for HttpClient that adds common resiliency patterns such a
 
 ---
 
+## 📦 NuGet Packages
+
+ResilientHttpClient is now available on NuGet! Install it easily in your .NET projects:
+
+### Core Package
+
+[![NuGet](https://img.shields.io/nuget/v/ResilientHttpClient.Core.svg?style=flat-square)](https://www.nuget.org/packages/ResilientHttpClient.Core/)
+
+```bash
+dotnet add package ResilientHttpClient.Core
+```
+
+**Package URL**: [https://www.nuget.org/packages/ResilientHttpClient.Core/](https://www.nuget.org/packages/ResilientHttpClient.Core/)
+
+### Dependency Injection Extensions
+
+[![NuGet](https://img.shields.io/nuget/v/ResilientHttpClient.Extensions.DependencyInjection.svg?style=flat-square)](https://www.nuget.org/packages/ResilientHttpClient.Extensions.DependencyInjection/)
+
+```bash
+dotnet add package ResilientHttpClient.Extensions.DependencyInjection
+```
+
+**Package URL**: [https://www.nuget.org/packages/ResilientHttpClient.Extensions.DependencyInjection/](https://www.nuget.org/packages/ResilientHttpClient.Extensions.DependencyInjection/)
+
+---
+
 ## 🔧 Recent Improvements
 
 ### v0.9.0 - Pre-Release (October 2025)
@@ -71,7 +97,17 @@ var response = await client.GetAsync("https://api.example.com/data");
 
 ## 📦 Installation
 
-### For .NET Projects
+### Via NuGet (Recommended)
+
+```bash
+# Install the core package
+dotnet add package ResilientHttpClient.Core
+
+# Optional: Install the DI extensions for ASP.NET Core
+dotnet add package ResilientHttpClient.Extensions.DependencyInjection
+```
+
+### For .NET Projects (Manual)
 
 1. Add the `ResilientHttpClient.Core.dll` to your project references.
 2. Make sure you have a reference to `System.Net.Http` in your project.
